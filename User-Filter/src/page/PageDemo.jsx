@@ -4,6 +4,8 @@ import Input from "../components/Input";
 import Modal from "../components/Modal";
 import Form from "../components/form";
 import FetchApi from "../components/FetchApi";
+import TotalPage from "../components/TotalPage";
+import Debounce from "../components/Debounce";
 
 const PageDemo = () => {
   const [name, setName] = useState("");
@@ -21,7 +23,9 @@ const PageDemo = () => {
         <h3>Hello {name}</h3>
       </Modal>
       <Form /> */}
-      <FetchApi/>
+      {/* <FetchApi/>
+      <TotalPage/> */}
+      <Debounce/>
     </div>
   );
 };
