@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 
 const Debounce = () => {
   const users = [
@@ -18,7 +18,7 @@ const Debounce = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const result = users.filter((name) =>
-        name.toLowerCase().includes(search.toLowerCase())
+        name.toLowerCase().includes(search.toLowerCase()),
       );
       setFiltered(result);
     }, 500);
@@ -41,6 +41,6 @@ const Debounce = () => {
       ))}
     </div>
   );
-}
+};
 
-export default Debounce
+export default Debounce;
