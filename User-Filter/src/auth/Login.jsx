@@ -1,7 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    ConfirmPassword: "",
+  });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -9,7 +15,8 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Login Data:", form);
+    localStorage.setItem("token", "dummyToken");
+    navigate("/apipage");
   };
 
   return (
@@ -28,6 +35,13 @@ export default function Login() {
         type="password"
         placeholder="Password"
         value={form.password}
+        onChange={handleChange}
+      />
+      <input
+        name="ConfirmPassword"
+        type="password"
+        placeholder="Confirm Password"
+        value={form.ConfirmPassword}
         onChange={handleChange}
       />
 

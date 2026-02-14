@@ -1,22 +1,23 @@
-import { use, useContext, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import UserList from "./components/Userlist";
-import PageDemo from "./page/PageDemo";
-import { ThemeContext } from "./context/Theme";
+import { Routes, Route } from "react-router-dom";
 import Login from "./auth/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashBoard from "./components/DashBoard";
+import AxiosUsers from "./page/ApiPage";
 
 function App() {
-  const { toggleTheme } = useContext(ThemeContext);
-
   return (
-    <>
-      {/* <UserList /> */}
-      {/* <PageDemo /> */}
-      <button onClick={toggleTheme}>Change Theme</button>
-      <Login />
-    </>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/apipage"
+        element={
+          <ProtectedRoute>
+            <AxiosUsers />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
