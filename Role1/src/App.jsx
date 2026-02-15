@@ -4,11 +4,12 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import AdminRoute from "./Routes/AdminRoutes";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashbaord";
+import Dashboard from "./components/DashBoard";
 
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />}></Route>
 
       {/* USER ACCESS */}
       <Route
@@ -16,6 +17,7 @@ function App() {
         element={
           <ProtectedRoute>
             <UserDashboard />
+            <Dashboard />
           </ProtectedRoute>
         }
       />

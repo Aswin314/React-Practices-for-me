@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { RoleContext } from "../context/RoleContext";
+import axios from "axios";
 
 export default function Login() {
   const { Login } = useContext(RoleContext);
@@ -20,31 +21,41 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!form.role) {
-      alert("Select role");
-      return;
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      });
+      localStorage.setItem("token", res.data.token);
+    } catch (err) {
+      alert(err.response.data.message);
     }
+    // if (!form.role) {`
+    //   alert("Select role");
+    //   return;
+    // }
 
-    const fakeToken = "aswin_token_123";
-
-    // store token + role
-    localStorage.setItem("token", fakeToken);
-    localStorage.setItem("role", form.role);
-
-    // ROLE BASED NAVIGATION (DAY 13)
     if (form.role === "admin") {
       navigate("/admin", { replace: true });
     } else {
       navigate("/user", { replace: true });
     }
-    const expiryTime = Date.now() + 60000;
-    Login(fakeToken, form.role);
-    localStorage.setItem("expiryTime", expiryTime);
-  };
 
+    // ROLE BASED NAVIGATION (DAY 13)
+    // if (form.role === "admin") {
+    //   navigate("/admin", { replace: true });
+    // } else {
+    //   navigate("/user", { replace: true });
+    // }
+
+    // const expiryTime = Date.now() + 60000;
+    // Login(res.data.token, form.role);
+    // localStorage.setItem("expiryTime", expiryTime);
+    // localStorage.setItem("refreshToken", refreshToken);
+  };
   return (
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
