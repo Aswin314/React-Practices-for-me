@@ -1,0 +1,103 @@
+import React, { useState } from "react";
+import instance from "../api/axios";
+
+const Dashboard = () => {
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [status, setStatus] = useState("pending");
+  const [loading, setLoading] = useState(false);
+
+  const getTasks = async () => {
+    setLoading(true);
+    try {
+      const res = await instance.get("/tasks/alltasks");
+      setTasks(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+    setLoading(false);
+  };
+
+  const addTask = async () => {
+    try {
+      await instance.post("/tasks/add", {
+        title,
+        status,
+      });
+
+      getTasks(); // 🔥 Refresh UI
+      setTitle(""); // clear input
+    } catch (err) {
+      console.log(err);
+    }
+    const deleteTask = async (id) => {
+      try {
+        await instance.delete(`/tasks/delete/${id}`);
+        getTasks(); // 🔥 Refresh UI after delete
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    const updateTask = async (id, newStatus) => {
+      try {
+        await instance.put(`/tasks/update/${id}`, { status: newStatus });
+        getTasks(); // 🔥 Refresh UI after update
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  };
+  return (
+    <>
+      <div>
+        <h3>Add Task</h3>
+
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task Title"
+        />
+
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <button onClick={addTask}>Add Task</button>
+        <button onClick={getTasks}>Get Tasks</button>
+
+        <h2>My Tasks</h2>
+        {loading && <h3>Loading Tasks...</h3>}
+        {!loading && tasks.length === 0 && (
+          <h3>No tasks yet. Add your first task.</h3>
+        )}
+
+        {tasks.map((task) => (
+          <div
+            key={task._id}
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              margin: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <p>{task.title}</p>
+
+            <select
+              value={task.status}
+              onChange={(e) => updateTask(task._id, e.target.value)}
+            >
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+
+            <button onClick={() => deleteTask(task._id)}>Delete</button>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default Dashboard;
