@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import instance from "../api/axios";
 
 const Dashboard = () => {
@@ -10,8 +10,19 @@ const Dashboard = () => {
   const getTasks = async () => {
     setLoading(true);
     try {
-      const res = await instance.get("/tasks/alltasks");
-      setTasks(res.data);
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await instance.get("/tasks/myTasks", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setTasks(res.data); // 🔥 ONLY THIS
+      } catch (err) {
+        console.log(err);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -25,27 +36,46 @@ const Dashboard = () => {
         status,
       });
 
-      getTasks(); // 🔥 Refresh UI
-      setTitle(""); // clear input
+      getTasks();
+      setTitle("");
     } catch (err) {
       console.log(err);
     }
-    const deleteTask = async (id) => {
-      try {
-        await instance.delete(`/tasks/delete/${id}`);
-        getTasks(); // 🔥 Refresh UI after delete
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    const updateTask = async (id, newStatus) => {
-      try {
-        await instance.put(`/tasks/update/${id}`, { status: newStatus });
-        getTasks(); // 🔥 Refresh UI after update
-      } catch (err) {
-        console.log(err);
-      }
-    };
+  };
+
+  const updateTask = async (id, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await instance.put(
+        `/tasks/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      getTasks();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const deleteTask = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await instance.delete(`/tasks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      getTasks();
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <>
@@ -68,33 +98,37 @@ const Dashboard = () => {
 
         <h2>My Tasks</h2>
         {loading && <h3>Loading Tasks...</h3>}
-        {!loading && tasks.length === 0 && (
+        {/* {!loading && tasks.length === 0 && (
           <h3>No tasks yet. Add your first task.</h3>
-        )}
+        )} */}
 
-        {tasks.map((task) => (
-          <div
-            key={task._id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              margin: "10px",
-              borderRadius: "8px",
-            }}
-          >
-            <p>{task.title}</p>
-
-            <select
-              value={task.status}
-              onChange={(e) => updateTask(task._id, e.target.value)}
+        {tasks && tasks.length > 0 ? (
+          tasks.map((task) => (
+            <div
+              key={task._id}
+              style={{
+                border: "1px solid #ccc",
+                padding: "10px",
+                margin: "10px",
+                borderRadius: "8px",
+              }}
             >
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-            </select>
+              <p>{task.title}</p>
 
-            <button onClick={() => deleteTask(task._id)}>Delete</button>
-          </div>
-        ))}
+              <select
+                value={task.status}
+                onChange={(e) => updateTask(task._id, e.target.value)}
+              >
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <button onClick={() => deleteTask(task._id)}>Delete</button>
+            </div>
+          ))
+        ) : (
+          <p>No tasks available.</p>
+        )}
       </div>
     </>
   );

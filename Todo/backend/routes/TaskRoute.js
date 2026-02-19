@@ -11,9 +11,9 @@ import verifyToken from "../middlewares/authMiddleware.js";
 const TaskRouter = express.Router();
 
 TaskRouter.post("/add", verifyToken, CreateTask);
-TaskRouter.get("/allTasks", allTasks);
+TaskRouter.get("/myTasks", allTasks);
 // TaskRouter.get("/task", getTask);
-TaskRouter.delete("/delete/:id", deleteTask);
-TaskRouter.put("/update/:id", updateTask);
+TaskRouter.delete("/:id", verifyToken, deleteTask);
+TaskRouter.put("/:id", verifyToken, updateTask);
 
 export default TaskRouter;
