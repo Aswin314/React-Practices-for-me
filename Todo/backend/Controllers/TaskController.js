@@ -18,7 +18,6 @@ export const allTasks = async (req, res) => {
 };
 export const deleteTask = async (req, res) => {
   try {
-  
     const task = await Task.findByIdAndDelete({
       _id: req.params.id,
       user: req.user.id,

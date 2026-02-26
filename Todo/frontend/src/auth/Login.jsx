@@ -3,9 +3,13 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import Loader from "../components/Loader";
+import { handleError } from "../utils/ErrorHandler.js";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
+  const [Loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -23,6 +27,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post("http://localhost:5000/api/user/login", {
         email: form.email,
@@ -30,13 +35,9 @@ export default function Login() {
         role: form.role,
       });
       login(res.data.token);
+      toast.success("Login successful");
     } catch (err) {
-      if (err.response) {
-        alert(err.response.data.message);
-      } else {
-        alert("Server not responding");
-        console.log(err);
-      }
+      toast.error(handleError(err));
     }
     // if (!form.role) {`
     //   alert("Select role");
@@ -48,6 +49,7 @@ export default function Login() {
     } else {
       navigate("/user", { replace: true });
     }
+    setLoading(false);
 
     // ROLE BASED NAVIGATION (DAY 13)
     // if (form.role === "admin") {
@@ -80,7 +82,7 @@ export default function Login() {
         <option value="user">User</option>
       </select>
 
-      <button type="submit">Login</button>
+      {Loading ? <Loader /> : <button type="submit">Login</button>}
     </form>
   );
 }

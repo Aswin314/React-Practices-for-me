@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import instance from "../api/axios";
+import { toast } from "react-toastify";
+import { handleError } from "../utils/ErrorHandler";
+import axios from "axios";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -10,59 +13,62 @@ const Dashboard = () => {
   const getTasks = async () => {
     setLoading(true);
     try {
-      try {
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-        const res = await instance.get("/tasks/myTasks", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const res = await instance.get("/tasks/myTasks", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        setTasks(res.data); // 🔥 ONLY THIS
-      } catch (err) {
-        console.log(err);
-      }
+      setTasks(res.data);
+      toast.success("Tasks fetched successfully");
     } catch (err) {
+      toast.error(handleError(err));
       console.log(err);
     }
     setLoading(false);
   };
 
   const addTask = async () => {
+    setLoading(true);
     try {
       await instance.post("/tasks/add", {
         title,
         status,
       });
-
       getTasks();
       setTitle("");
+      toast.success("Task added successfully");
     } catch (err) {
+      toast.error(handleError(err));
       console.log(err);
     }
+    setLoading(false);
   };
 
-  const updateTask = async (id, newStatus) => {
+  const updateTask = async (id, updatedData) => {
     try {
       const token = localStorage.getItem("token");
 
       await instance.put(
         `/tasks/${id}`,
-        { status: newStatus },
+        { status: updatedData },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
-
       getTasks();
+      toast.success("Task updated successfully");
     } catch (err) {
+      toast.error(handleError(err));
       console.log(err);
     }
   };
   const deleteTask = async (id) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
 
@@ -73,9 +79,12 @@ const Dashboard = () => {
       });
 
       getTasks();
+      toast.success("Task deleted successfully");
     } catch (err) {
+      toast.error(handleError(err));
       console.log(err);
     }
+    setLoading(false);
   };
   return (
     <>
@@ -93,7 +102,9 @@ const Dashboard = () => {
           <option value="completed">Completed</option>
         </select>
 
-        <button onClick={addTask}>Add Task</button>
+        <button disabled={loading} onClick={addTask}>
+          Add Task
+        </button>
         <button onClick={getTasks}>Get Tasks</button>
 
         <h2>My Tasks</h2>
@@ -122,6 +133,7 @@ const Dashboard = () => {
                 <option value="pending">Pending</option>
                 <option value="completed">Completed</option>
               </select>
+              <p>Status: {task.status}</p>
 
               <button onClick={() => deleteTask(task._id)}>Delete</button>
             </div>
